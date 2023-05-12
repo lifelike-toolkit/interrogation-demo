@@ -1,1 +1,3 @@
-langchain
+git+https://github.com/lifelike-toolkit/lifelike.git
+llama-cpp-python
+pyglet

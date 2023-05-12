@@ -1,4 +1,8 @@
-from sequence_tree import SequenceTree
+"""
+This file will demonstrate how the sequence tree for the game is built.
+In this game, each sequence event will demonstrate the suspect's reaction to a topic being asked/talked about.
+"""
+from lifelike.sequence_tree import SequenceTree
 
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipeline
 from sequence_tree import *
