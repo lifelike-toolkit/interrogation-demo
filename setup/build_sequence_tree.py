@@ -13,7 +13,10 @@ llm_embedding = LlamaCppEmbeddings(model_path='setup/ggml-alpaca-7b-q4.bin')
 
 tree = KnowledgeTree.from_texts(
     "dinnercase", 
-    ["Emily William was poisoned to death", "Jason William poisoned Emily William", "Jason William is Emily William's older brother"], 
+    ["Emily William was poisoned to death at the dinner party", "Jason William is Emily William's older brother", 
+    "Peter William is Jason William and Emily William's father", "Emily William died right before Peter William made a toast", 
+    "The dinner party happened on Thursday", "Tina Bride is the family maid", 
+    "Jason, Emily and Peter were all present at the dinner party", "Tina Bride was on vacation on Thursday"], 
     llm_embedding, 
 )
 
