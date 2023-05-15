@@ -9,8 +9,10 @@ characters = brain.Characters('characters.json')
 
 player = "Player"
 character = "Jason William"
-character_background = "Jason does not want to be found guilty of murdering Emily William."
-CONTEXT = "Player is interrogating Jason in the police station."
+character_background = "Jason William is a software engineer. He is extremely egotistical and believes that he is the only rightful heir to his father's fortune. \
+    Jason is trying to hide the fact that he killed Emily because Jason knows that he will be executed if the truth comes out.\
+    Jason meant to kill his father so he can take over the inheritance sooner. However, he accidentally killed his sister Emily William instead. "
+CONTEXT = "Player is interrogating Jason about the death of Emily William in the Kingston police station in Kingston, Ontario, Canada."
 first_speaker = character
 
 characters.add(player, "")
