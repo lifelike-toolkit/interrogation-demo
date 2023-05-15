@@ -2,75 +2,21 @@
 This file will demonstrate how the sequence tree for the game is built.
 In this game, each sequence event will demonstrate the suspect's reaction to a topic being asked/talked about.
 """
-from lifelike.sequence_tree import SequenceTree
+from langchain.chains import RetrievalQA
+from langchain.llms import LlamaCpp
+from langchain.embeddings import LlamaCppEmbeddings
 
-from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipeline
-from sequence_tree import *
+from lifelike.StateManager.knowledge_tree import KnowledgeTree
 
-# Import model and tokenizer here
-model = AutoModelForSequenceClassification.from_pretrained('models/bertGoEmotion/') # Assumes the configuration is correct for the use case
-tokenizer = AutoTokenizer.from_pretrained('microsoft/xtremedistil-l6-h384-uncased') # change parameter to your own provided pre-trained model
+llm = LlamaCpp(model_path='setup/ggml-alpaca-7b-q4.bin')
+llm_embedding = LlamaCppEmbeddings(model_path='setup/ggml-alpaca-7b-q4.bin')
 
-sentimentAnalysis = pipeline('sentiment-analysis', model=model, tokenizer=tokenizer, top_k=28)
+tree = KnowledgeTree.from_texts(
+    "dinnercase", 
+    ["Emily William was poisoned to death", "Jason William poisoned Emily William", "Jason William is Emily William's older brother"], 
+    llm_embedding, 
+)
 
-def embed_responses(responses: list) -> list:
-        """
-        Simple embedder for testing
-        """
-        dims = 28
-        results = sentimentAnalysis(responses)
-        embeddings = []
-        for result in results:
-            resultEmbedding = [0]*dims
-            for labelDict in result:
-                emotionIndex = int(labelDict["label"].split("_")[1])
-                resultEmbedding[emotionIndex] = labelDict["score"]
-            embeddings.append(resultEmbedding)
+retriever = tree.get_retriever()
 
-        assert len(embeddings) == len(results) # Batch size must be the same
-        return embeddings
-
-tree_builder = SequenceTree("Demo", embed_responses, 28)
-
-# Step 1
-print("Define embedding templates and tuning")
-
-embedding_template_name = input("Give a name to this embedding template (q to skip): ")
-
-while embedding_template_name != "q":
-    embedding_template = PathEmbedding(embedding_template_name, embed_responses, 28)
-    message_list = []
-    # Get messages
-    message = input("Give a sample response for this embedding template (q to skip): ")
-    while message != "q":
-        message_list.append(message)
-        message = input("Give another sample response for this embedding template (q to skip): ")
-
-    tree_builder.add_embedding_template(embedding_template_name, message_list)
-
-    embedding_template_name = input("Give a name for a new embedding template (q to skip): ")
-
-# Step 2
-print("Define sequences")
-
-event_id = input("Give the id for this sequence (use sequence0, sequence1... format) (q to skip): ")
-while event_id != "q":
-    name = input("Name of sequence: ")
-    reaction = input("NPCs' response to this path: ")
-    
-    tree_builder.add_event(event_id, name, reaction)
-
-    event_id = input("Give the id for another sequence (stay consistent, do not use - in it) (q to skip): ")
-
-print("Add connections")
-path_string = input("Give a sequence connection between 2 sequence nodes as id1-id2 (connection is 1 way, id1 to id2) (q to skip): ")
-
-while path_string != 'q':
-    embedding_template=input("Choose an available embedding between (watch for typo) {}: ".format(tree_builder.get_template_options()))
-    left, right = path_string.split('-')
-    tree_builder.add_path(left, right, path_string, embedding_template) # Defaults name to the path_string to ensure uniqueness
-    path_string = input("Give another sequence connection between 2 sequence nodes as id1-id2 (connection is 1 way, id1 to id2) (q to skip): ")
-
-# Assuming that sequence0 is the root sequence 
-tree_builder.to_json('./test.json')
-tree_builder.write_db()
+retrievalQA = RetrievalQA.from_llm(llm=llm, retriever=retriever)

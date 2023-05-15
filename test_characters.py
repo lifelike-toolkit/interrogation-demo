@@ -2,37 +2,36 @@
 from langchain.llms import LlamaCpp
 from lifelike import brain
 
-# Initialize LLM
-llm = LlamaCpp(model_path='ggml-model-q4_0.bin', use_mlock=True)
+from setup.build_sequence_tree import llm, retrievalQA
 
 # Initialize Characters
 characters = brain.Characters('characters.json')
 
-name1 = "Jason Mann"
-name2 = "Peter Barlow"
-background1 = "Police detective investigating the murder of Tina Barlow. He suspects Peter Barlow to have murdered Tina. He will not stop until Peter confesses"
-background2 = "Tina Barlow's brother. He murdered Tina but is trying to hide it."
-CONTEXT = "Jason is interrogating Peter in the police station. Jason is pressured to get Peter to confess to killing Tina."
-first_speaker = "Peter Barlow"
-first_utterance = "Why was I summoned here?"
+player = "Player"
+character = "Jason William"
+character_background = "Jason does not want to be found guilty of murdering Emily William."
+CONTEXT = "Player is interrogating Jason in the police station."
+first_speaker = character
 
-characters.add(name1, background1)
-characters.add(name2, background2)
+characters.add(player, "")
+characters.add(character, character_background)
 
 # Initialize Conversations
 conversations = brain.Conversations('conversations.json', characters, llm)
 
-conversations.new(CONTEXT, {name1, name2})
-conversations.append(CONTEXT, first_speaker, first_utterance)
-
+conversations.new(CONTEXT, {player, character})
+conversations.append(CONTEXT, character, 'What do you want to ask me, detective?')
 
 # Start chatbot
-counter = 0
 while True:
-    if counter % 2 == 0:
-        print("{}: {}".format(name2, conversations.get(CONTEXT)['log'][-1][1]))
-    else:
-        print("{}: {}".format(name1, conversations.get(CONTEXT)['log'][-1][1], is_user=True))
-    counter += 1
-    last_speaker = conversations.get(CONTEXT)['log'][-1][0]
-    out = conversations.generate(CONTEXT, {last_speaker})
+    line = conversations.get(CONTEXT)["log"][-1]
+    speaker = line[0]
+    utterance = line[1]
+    print(f"{speaker}: {utterance}")
+
+    new_utterance = input("Player: ")
+    conversations.append(CONTEXT, "Player", new_utterance)
+    print()
+    history = retrievalQA.run(new_utterance)
+    conversations.generate(CONTEXT, history, {"Player"})
+    

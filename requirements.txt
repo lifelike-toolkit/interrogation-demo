@@ -1,3 +1,4 @@
-git+https://github.com/lifelike-toolkit/lifelike.git
-llama-cpp-python
+git+https://github.com/lifelike-toolkit/lifelike.git@interrogation-demo
+llama-cpp-python==v0.1.49
 pyglet
+chromadb
