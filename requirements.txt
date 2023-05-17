@@ -1,4 +1,5 @@
 git+https://github.com/lifelike-toolkit/lifelike.git@interrogation-demo
-llama-cpp-python==v0.1.49
-pyglet
+# llama-cpp-python==v0.1.49
+tiktoken
+openai
 chromadb
