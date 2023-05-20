@@ -8,7 +8,7 @@ from setup.llm import LLM, LLM_EMBEDDING
 # Defines the game tree (story logic)
 TREE = KnowledgeTree.from_texts(STORY_NAME, WORLD_KNOWLEDGE, LLM_EMBEDDING)
 # Defines the retriever from tree
-retriever = TREE.get_retriever(search_type='similarity', search_kwargs={'k': 4}) # hopefully will reduce the number of returned results
+retriever = TREE.get_retriever(search_type='similarity', search_kwargs={'k': 4})
 # Defines the QA chain
 QA_CHAIN = RetrievalQA.from_llm(llm=LLM, retriever=retriever)
 # Defines characters
